@@ -15,16 +15,30 @@ class UmkmProfile extends Model
         'user_id',
         'business_name',
         'owner_name',
+        'established_year',
+        'employee_count',
+        'monthly_revenue',
         'description',
         'address',
+        'kelurahan',
         'kecamatan',
         'kabupaten_kota',
         'whatsapp',
         'instagram',
         'nib',
-        'affiliation_status',
+        'has_halal_certificate',
+        'halal_certificate_year',
+        'has_attended_training',
         'logo_path',
         'status',
+    ];
+
+    protected $casts = [
+        'established_year'       => 'integer',
+        'employee_count'         => 'integer',
+        'monthly_revenue'        => 'integer',
+        'has_halal_certificate'  => 'boolean',
+        'halal_certificate_year' => 'integer',
     ];
 
     public function user(): BelongsTo

@@ -11,13 +11,13 @@
             @endif
 
             <div class="p-4 sm:p-6 bg-white shadow sm:rounded-lg">
-                <form action="{{ route('admin.umkm-profiles.index') }}" method="GET" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <form action="{{ route('admin.umkm-profiles.index') }}" method="GET" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                     <div>
                         <label class="block text-xs font-semibold text-gray-700 uppercase mb-1">Cari Nama Usaha</label>
-                        <input type="text" name="search" value="{{ request('search') }}" class="w-full text-sm rounded-md border-gray-300 shadow-sm p-2 border">
+                        <input type="text" name="search" value="{{ request('search') }}" placeholder="Ketik nama UMKM..." class="w-full text-sm rounded-md border-gray-300 shadow-sm p-2 border">
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold text-gray-700 uppercase mb-1">Status</label>
+                        <label class="block text-xs font-semibold text-gray-700 uppercase mb-1">Status Moderasi</label>
                         <select name="status" class="w-full text-sm rounded-md border-gray-300 shadow-sm p-2 border">
                             <option value="">-- Semua Status --</option>
                             <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Pending</option>
@@ -25,10 +25,23 @@
                             <option value="rejected" {{ request('status') == 'rejected' ? 'selected' : '' }}>Rejected</option>
                         </select>
                     </div>
-                    <div class="flex items-end">
-                        <button type="submit" class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded text-sm w-full h-[38px]">
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-700 uppercase mb-1">Pelatihan & Pendampingan</label>
+                        <select name="has_attended_training" class="w-full text-sm rounded-md border-gray-300 shadow-sm p-2 border">
+                            <option value="">-- Semua --</option>
+                            <option value="ya" {{ request('has_attended_training') == 'ya' ? 'selected' : '' }}>🎓 Pernah Ikut (Ya)</option>
+                            <option value="tidak" {{ request('has_attended_training') == 'tidak' ? 'selected' : '' }}>Belum Pernah (Tidak)</option>
+                        </select>
+                    </div>
+                    <div class="flex items-end gap-2">
+                        <button type="submit" class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded text-sm flex-1 h-[38px]">
                             Cari & Filter
                         </button>
+                        @if(request()->hasAny(['search', 'status', 'has_attended_training']))
+                            <a href="{{ route('admin.umkm-profiles.index') }}" class="bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-2 px-3 rounded text-sm h-[38px] flex items-center justify-center border border-gray-300" title="Reset Filter">
+                                Reset
+                            </a>
+                        @endif
                     </div>
                 </form>
             </div>
@@ -46,6 +59,15 @@
                         <div class="flex flex-wrap gap-2 mb-3">
                             <x-status-badge :status="$profile->status" :label="ucfirst($profile->status)" />
                             <x-status-badge :status="$profile->user->is_active ? 'account_active' : 'account_suspended'" />
+                            @if($profile->has_attended_training === 'ya')
+                                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-purple-100 text-purple-800">
+                                    🎓 Pernah Pelatihan
+                                </span>
+                            @else
+                                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-600">
+                                    Belum Pelatihan
+                                </span>
+                            @endif
                         </div>
                         @if($profile->user->is_active)
                             <form action="{{ route('admin.umkm-profiles.suspend', $profile) }}" method="POST" onsubmit="return confirm('Yakin suspend akun UMKM ini? Login akan diblokir dan hilang dari katalog publik.')">
@@ -79,6 +101,7 @@
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Nama Usaha</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Pemilik</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">WhatsApp</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Pelatihan Kewirausahaan</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Akun</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Aksi</th>
@@ -87,9 +110,20 @@
                     <tbody class="bg-white divide-y divide-gray-200">
                         @forelse($profiles as $profile)
                             <tr>
-                                <td class="px-6 py-4 whitespace-nowrap">{{ $profile->business_name }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap font-medium text-gray-900">{{ $profile->business_name }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap">{{ $profile->owner_name }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap">{{ $profile->whatsapp }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    @if($profile->has_attended_training === 'ya')
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-purple-100 text-purple-800">
+                                            🎓 Pernah
+                                        </span>
+                                    @else
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
+                                            Belum
+                                        </span>
+                                    @endif
+                                </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <x-status-badge :status="$profile->status" :label="ucfirst($profile->status)" />
                                 </td>
@@ -116,7 +150,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="6" class="px-6 py-4 text-center text-gray-500">Tidak ada data.</td>
+                                <td colspan="7" class="px-6 py-4 text-center text-gray-500">Tidak ada data.</td>
                             </tr>
                         @endforelse
                     </tbody>

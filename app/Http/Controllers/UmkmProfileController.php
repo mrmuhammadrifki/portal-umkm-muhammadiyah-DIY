@@ -29,19 +29,36 @@ class UmkmProfileController extends Controller
 
         $this->authorize('update', $profile);
 
+        $currentYear = (int) date('Y');
+
         $validated = $request->validate([
-            'business_name' => ['required', 'string', 'max:255'],
-            'owner_name' => ['required', 'string', 'max:255'],
-            'description' => ['nullable', 'string'],
-            'address' => ['nullable', 'string'],
-            'kecamatan' => ['nullable', 'string', 'max:255'],
-            'kabupaten_kota' => ['nullable', 'string', 'max:255'],
-            'whatsapp' => ['required', 'string', 'max:20'],
-            'instagram' => ['nullable', 'string', 'max:255'],
-            'nib' => ['nullable', 'string', 'max:255'],
-            'affiliation_status' => ['required', 'in:afiliasi,non_afiliasi'],
-            'logo' => ['nullable', 'image', 'mimes:jpg,jpeg,png', 'max:2048'],
+            'business_name'          => ['required', 'string', 'max:255'],
+            'owner_name'             => ['required', 'string', 'max:255'],
+            'established_year'       => ['nullable', 'integer', 'min:1900', 'max:' . $currentYear],
+            'employee_count'         => ['nullable', 'integer', 'min:0'],
+            'monthly_revenue'        => ['nullable', 'integer', 'min:0'],
+            'description'            => ['nullable', 'string'],
+            'address'                => ['nullable', 'string'],
+            'kelurahan'              => ['nullable', 'string', 'max:255'],
+            'kecamatan'              => ['nullable', 'string', 'max:255'],
+            'kabupaten_kota'         => ['nullable', 'string', 'max:255'],
+            'whatsapp'               => ['required', 'numeric'],
+            'instagram'              => ['nullable', 'string', 'max:255'],
+            'nib'                    => ['nullable', 'string', 'max:255'],
+            'has_halal_certificate'  => ['required', 'boolean'],
+            'halal_certificate_year' => ['nullable', 'required_if:has_halal_certificate,1', 'integer', 'min:1980', 'max:' . $currentYear],
+            'has_attended_training'  => ['required', 'in:ya,tidak'],
+            'logo'                   => ['nullable', 'image', 'mimes:jpg,jpeg,png', 'max:2048'],
+        ], [
+            'whatsapp.numeric'                   => 'Nomor WhatsApp hanya boleh diisi dengan angka.',
+            'halal_certificate_year.required_if' => 'Tahun penerbitan sertifikasi halal wajib diisi jika sudah bersertifikat halal.',
+            'halal_certificate_year.max'         => 'Tahun penerbitan sertifikasi halal tidak boleh melebihi tahun sekarang.',
+            'established_year.max'               => 'Tahun pendirian usaha tidak boleh melebihi tahun sekarang.',
         ]);
+
+        if (! $validated['has_halal_certificate']) {
+            $validated['halal_certificate_year'] = null;
+        }
 
         if ($request->hasFile('logo')) {
             if ($profile->logo_path) {
@@ -72,6 +89,10 @@ class UmkmProfileController extends Controller
 
         if ($request->filled('status')) {
             $query->where('status', $request->status);
+        }
+
+        if ($request->filled('has_attended_training')) {
+            $query->where('has_attended_training', $request->has_attended_training);
         }
 
         $profiles = $query->latest()->paginate(15)->withQueryString();

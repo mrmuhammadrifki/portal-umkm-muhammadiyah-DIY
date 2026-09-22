@@ -33,6 +33,9 @@
                         <x-nav-link :href="route('admin.kategori.index')" :active="request()->routeIs('admin.kategori.*')">
                             Kategori
                         </x-nav-link>
+                        <x-nav-link :href="route('admin.event.index')" :active="request()->routeIs('admin.event.*')">
+                            Kelola Event
+                        </x-nav-link>
                     @else
                         <x-nav-link :href="route('umkm-profile.edit')" :active="request()->routeIs('umkm-profile.edit')">
                             Profil Usaha
@@ -113,6 +116,9 @@
                 </x-responsive-nav-link>
                 <x-responsive-nav-link :href="route('admin.kategori.index')" :active="request()->routeIs('admin.kategori.*')">
                     Kategori
+                </x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('admin.event.index')" :active="request()->routeIs('admin.event.*')">
+                    Kelola Event
                 </x-responsive-nav-link>
             @else
                 <x-responsive-nav-link :href="route('umkm-profile.edit')" :active="request()->routeIs('umkm-profile.edit')">

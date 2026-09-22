@@ -5,6 +5,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\EventController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -27,6 +28,10 @@ Route::get('/katalog/{id}', [UmkmController::class, 'detail'])->name('katalog.de
 // Katalog produk publik (F9, F10, F12)
 Route::get('/produk-publik', [UmkmController::class, 'produkPublik'])->name('katalog.produk');
 Route::get('/produk-publik/{product}', [UmkmController::class, 'produkDetail'])->name('katalog.produk-detail');
+
+// Agenda, Pelatihan, Pendampingan, & Workshop LP UMKM PWM DIY
+Route::get('/agenda', [EventController::class, 'index'])->name('event.index');
+Route::get('/agenda/{event:slug}', [EventController::class, 'show'])->name('event.show');
 
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
@@ -64,6 +69,8 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::post('/umkm/{umkmProfile}/reactivate', [UmkmProfileController::class, 'reactivate'])->name('umkm-profiles.reactivate');
 
     Route::resource('kategori', CategoryController::class)->except(['show']);
+    Route::get('/event', [EventController::class, 'adminIndex'])->name('event.index');
+    Route::resource('event', EventController::class)->except(['index', 'show']);
 });
 
 require __DIR__.'/auth.php';

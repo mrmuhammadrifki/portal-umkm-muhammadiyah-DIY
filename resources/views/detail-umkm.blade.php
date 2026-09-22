@@ -12,8 +12,32 @@
                         <h1 class="text-2xl sm:text-3xl font-extrabold text-gray-900">{{ $umkm->business_name }}</h1>
                         <p class="text-sm text-gray-500 mt-1">Pemilik: <span class="font-semibold text-gray-700">{{ $umkm->owner_name }}</span></p>
                         @if($umkm->kabupaten_kota)
-                            <p class="text-sm text-gray-500">📍 <span class="font-semibold text-gray-700">{{ $umkm->kecamatan ? $umkm->kecamatan . ', ' : '' }}{{ $umkm->kabupaten_kota }}</span></p>
+                            <p class="text-sm text-gray-500">📍 <span class="font-semibold text-gray-700">{{ $umkm->kelurahan ? 'Kal./Kel. ' . $umkm->kelurahan . ', ' : '' }}{{ $umkm->kecamatan ? 'Kec. ' . $umkm->kecamatan . ', ' : '' }}{{ $umkm->kabupaten_kota }}</span></p>
                         @endif
+
+                        <!-- BADGES INFORMASI TAMBAHAN -->
+                        <div class="flex flex-wrap gap-2 mt-3">
+                            @if($umkm->established_year)
+                                <span class="inline-flex items-center gap-1 bg-gray-100 text-gray-700 text-xs px-2.5 py-1 rounded-full font-medium">
+                                    🗓️ Berdiri Th. {{ $umkm->established_year }}
+                                </span>
+                            @endif
+                            @if($umkm->employee_count)
+                                <span class="inline-flex items-center gap-1 bg-gray-100 text-gray-700 text-xs px-2.5 py-1 rounded-full font-medium">
+                                    👥 {{ $umkm->employee_count }} Karyawan
+                                </span>
+                            @endif
+                            @if($umkm->has_halal_certificate)
+                                <span class="inline-flex items-center gap-1 bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs px-2.5 py-1 rounded-full font-semibold">
+                                    ✓ Bersertifikat Halal @if($umkm->halal_certificate_year)({{ $umkm->halal_certificate_year }})@endif
+                                </span>
+                            @endif
+                            @if($umkm->has_attended_training === 'ya')
+                                <span class="inline-flex items-center gap-1 bg-blue-50 text-blue-800 border border-blue-200 text-xs px-2.5 py-1 rounded-full font-semibold">
+                                    🎓 Telah Ikut Pembinaan UMKM
+                                </span>
+                            @endif
+                        </div>
                     </div>
                 </div>
 
@@ -33,8 +57,12 @@
                         </div>
                     @endif
 
+                    @if($umkm->nib)
+                        <p class="text-sm text-gray-600">NIB: <span class="font-medium text-gray-800">{{ $umkm->nib }}</span></p>
+                    @endif
+
                     @if($umkm->instagram)
-                        <p class="text-sm text-gray-600">Instagram: <span class="font-medium">{{ $umkm->instagram }}</span></p>
+                        <p class="text-sm text-gray-600">Instagram: <span class="font-medium text-brand">{{ $umkm->instagram }}</span></p>
                     @endif
                 </div>
 

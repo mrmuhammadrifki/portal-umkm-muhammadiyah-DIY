@@ -27,10 +27,13 @@
                 <!-- Desktop links -->
                 <div class="hidden sm:flex sm:items-center sm:space-x-4">
                     <a href="{{ route('katalog.publik') }}" class="hover:bg-brand-dark px-3 py-2 rounded-md text-sm font-medium transition {{ request()->routeIs('katalog.publik') ? 'bg-brand-dark' : '' }}">
-                        Daftar UMKM
+                        Home
                     </a>
                     <a href="{{ route('katalog.produk') }}" class="hover:bg-brand-dark px-3 py-2 rounded-md text-sm font-medium transition {{ request()->routeIs('katalog.produk*') ? 'bg-brand-dark' : '' }}">
                         Katalog Produk
+                    </a>
+                    <a href="{{ route('event.index') }}" class="hover:bg-brand-dark px-3 py-2 rounded-md text-sm font-medium transition {{ request()->routeIs('event.*') ? 'bg-brand-dark' : '' }}">
+                        Agenda & Pelatihan
                     </a>
                     <a href="{{ route('login') }}" class="hover:bg-brand-dark px-3 py-2 rounded-md text-sm font-medium transition">
                         Login
@@ -58,10 +61,13 @@
         <div x-show="open" x-transition class="sm:hidden border-t border-brand-dark" style="display: none;">
             <div class="px-4 py-3 space-y-1">
                 <a href="{{ route('katalog.publik') }}" class="block px-3 py-2 rounded-md text-sm font-medium transition {{ request()->routeIs('katalog.publik') ? 'bg-brand-dark' : 'hover:bg-brand-dark' }}">
-                    Daftar UMKM
+                    Home
                 </a>
                 <a href="{{ route('katalog.produk') }}" class="block px-3 py-2 rounded-md text-sm font-medium transition {{ request()->routeIs('katalog.produk*') ? 'bg-brand-dark' : 'hover:bg-brand-dark' }}">
                     Katalog Produk
+                </a>
+                <a href="{{ route('event.index') }}" class="block px-3 py-2 rounded-md text-sm font-medium transition {{ request()->routeIs('event.*') ? 'bg-brand-dark' : 'hover:bg-brand-dark' }}">
+                    Agenda & Pelatihan
                 </a>
                 <a href="{{ route('login') }}" class="block px-3 py-2 rounded-md text-sm font-medium hover:bg-brand-dark transition">
                     Login
@@ -98,6 +104,7 @@
                     <h3 class="text-md font-bold tracking-wider uppercase mb-3 text-brand-300">Tautan Pintas</h3>
                     <ul class="text-sm text-brand-100 space-y-2">
                         <li><a href="{{ route('katalog.produk') }}" class="hover:text-white transition">🛍️ Katalog Produk</a></li>
+                        <li><a href="{{ route('event.index') }}" class="hover:text-white transition">📅 Agenda & Pelatihan LP UMKM</a></li>
                         <li><a href="{{ route('login') }}" class="hover:text-white transition">🔐 Login Admin / Pelaku Usaha</a></li>
                         <li><a href="{{ route('register') }}" class="hover:text-white transition">📝 Pendaftaran Mitra Baru</a></li>
                     </ul>
