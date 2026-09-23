@@ -13,6 +13,7 @@ class Product extends Model
 
     protected $fillable = [
         'umkm_id',
+        'subsector_id',
         'category_id',
         'name',
         'description',
@@ -23,6 +24,11 @@ class Product extends Model
     public function umkmProfile(): BelongsTo
     {
         return $this->belongsTo(UmkmProfile::class, 'umkm_id');
+    }
+
+    public function subsector(): BelongsTo
+    {
+        return $this->belongsTo(Subsector::class);
     }
 
     public function category(): BelongsTo

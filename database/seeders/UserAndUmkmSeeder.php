@@ -2,6 +2,8 @@
 
 namespace Database\Seeders;
 
+use App\Models\Category;
+use App\Models\Subsector;
 use App\Models\UmkmProfile;
 use App\Models\User;
 use Illuminate\Database\Seeder;
@@ -313,6 +315,21 @@ class UserAndUmkmSeeder extends Seeder
                 4_000_000, 8_000_000, 12_000_000, 18_000_000, 22_000_000, // Mikro
                 30_000_000, 55_000_000, 90_000_000, 140_000_000,           // Kecil
             ]));
+            $revenue = $item['monthly_revenue'] ?? $defaultRevenue;
+
+            // Tentukan Kategori Skala Usaha (Mikro, Kecil, Menengah)
+            $categorySlug = $revenue < 25_000_000 ? 'mikro' : ($revenue <= 208_000_000 ? 'kecil' : 'menengah');
+            $category = Category::where('slug', $categorySlug)->first();
+
+            // Tentukan Subsektor EKRAF
+            $catName = $item['category'] ?? 'Kuliner';
+            $subsectorQuery = match($catName) {
+                'Fashion'   => 'Fashion',
+                'Kerajinan' => 'Kriya',
+                'Pertanian' => 'Kuliner',
+                default     => $catName,
+            };
+            $subsector = Subsector::where('name', 'like', "%{$subsectorQuery}%")->first();
 
             UmkmProfile::updateOrCreate(
                 ['user_id' => $user->id],
@@ -321,7 +338,9 @@ class UserAndUmkmSeeder extends Seeder
                     'owner_name'             => $item['user_name'],
                     'established_year'       => $item['established_year'] ?? rand(2015, 2023),
                     'employee_count'         => $item['employee_count'] ?? rand(2, 15),
-                    'monthly_revenue'        => $item['monthly_revenue'] ?? $defaultRevenue,
+                    'monthly_revenue'        => $revenue,
+                    'category_id'            => $category?->id,
+                    'subsector_id'           => $subsector?->id,
                     'description'            => $item['description'],
                     'address'                => $item['address'],
                     'kelurahan'              => $item['kelurahan'] ?? null,

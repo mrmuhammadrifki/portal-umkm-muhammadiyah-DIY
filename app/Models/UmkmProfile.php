@@ -30,6 +30,8 @@ class UmkmProfile extends Model
         'halal_certificate_year',
         'has_attended_training',
         'logo_path',
+        'subsector_id',
+        'category_id',
         'status',
     ];
 
@@ -46,8 +48,36 @@ class UmkmProfile extends Model
         return $this->belongsTo(User::class);
     }
 
+    public function subsector(): BelongsTo
+    {
+        return $this->belongsTo(Subsector::class);
+    }
+
+    public function category(): BelongsTo
+    {
+        return $this->belongsTo(Category::class);
+    }
+
     public function products(): HasMany
     {
         return $this->hasMany(Product::class, 'umkm_id');
+    }
+
+    /**
+     * Hitung kategori skala usaha secara dinamis berdasarkan pendapatan bulanan
+     */
+    public function getComputedCategoryScaleAttribute(): string
+    {
+        if ($this->monthly_revenue === null) {
+            return 'Belum Mengisi';
+        }
+
+        if ($this->monthly_revenue < 25_000_000) {
+            return 'Mikro';
+        } elseif ($this->monthly_revenue <= 208_000_000) {
+            return 'Kecil';
+        } else {
+            return 'Menengah';
+        }
     }
 }

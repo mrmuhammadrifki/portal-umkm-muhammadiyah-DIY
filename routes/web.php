@@ -5,6 +5,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\SubsectorController;
 use App\Http\Controllers\EventController;
 use Illuminate\Support\Facades\Route;
 
@@ -69,6 +70,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::post('/umkm/{umkmProfile}/reactivate', [UmkmProfileController::class, 'reactivate'])->name('umkm-profiles.reactivate');
 
     Route::resource('kategori', CategoryController::class)->except(['show']);
+    Route::resource('subsektor', SubsectorController::class)->except(['index', 'show']);
     Route::get('/event', [EventController::class, 'adminIndex'])->name('event.index');
     Route::resource('event', EventController::class)->except(['index', 'show']);
 });

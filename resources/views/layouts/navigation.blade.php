@@ -30,8 +30,8 @@
                         <x-nav-link :href="route('admin.produk.index')" :active="request()->routeIs('admin.produk.index')">
                             Semua Produk
                         </x-nav-link>
-                        <x-nav-link :href="route('admin.kategori.index')" :active="request()->routeIs('admin.kategori.*')">
-                            Kategori
+                        <x-nav-link :href="route('admin.kategori.index')" :active="request()->routeIs('admin.kategori.*') || request()->routeIs('admin.subsektor.*')">
+                            Kategori & Subsektor
                         </x-nav-link>
                         <x-nav-link :href="route('admin.event.index')" :active="request()->routeIs('admin.event.*')">
                             Kelola Event
@@ -114,8 +114,8 @@
                 <x-responsive-nav-link :href="route('admin.produk.index')" :active="request()->routeIs('admin.produk.index')">
                     Semua Produk
                 </x-responsive-nav-link>
-                <x-responsive-nav-link :href="route('admin.kategori.index')" :active="request()->routeIs('admin.kategori.*')">
-                    Kategori
+                <x-responsive-nav-link :href="route('admin.kategori.index')" :active="request()->routeIs('admin.kategori.*') || request()->routeIs('admin.subsektor.*')">
+                    Kategori & Subsektor
                 </x-responsive-nav-link>
                 <x-responsive-nav-link :href="route('admin.event.index')" :active="request()->routeIs('admin.event.*')">
                     Kelola Event

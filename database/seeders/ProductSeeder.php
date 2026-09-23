@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\Category;
 use App\Models\Product;
 use App\Models\ProductImage;
+use App\Models\Subsector;
 use App\Models\UmkmProfile;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
@@ -368,7 +369,13 @@ class ProductSeeder extends Seeder
             }
 
             foreach ($products as $prodData) {
-                $categoryId = $categoryMap[$prodData['category']] ?? $categoryMap['Lainnya'];
+                $subsectorName = match($prodData['category']) {
+                    'Fashion'   => 'Fashion',
+                    'Kerajinan' => 'Kriya',
+                    'Pertanian' => 'Kuliner',
+                    default     => $prodData['category'],
+                };
+                $subsector = Subsector::where('name', 'like', "%{$subsectorName}%")->first();
                 $totalPhotos = count($prodData['photos']);
 
                 // Generate foto pertama sebagai foto sampul (cover image / legacy image_path)
@@ -389,10 +396,11 @@ class ProductSeeder extends Seeder
                         'name'    => $prodData['name'],
                     ],
                     [
-                        'category_id' => $categoryId,
-                        'description' => $prodData['description'],
-                        'image_path'  => $coverImagePath,
-                        'status'      => $prodData['status'],
+                        'subsector_id' => $subsector?->id,
+                        'category_id'  => $umkm->category_id,
+                        'description'  => $prodData['description'],
+                        'image_path'   => $coverImagePath,
+                        'status'       => $prodData['status'],
                     ]
                 );
 
