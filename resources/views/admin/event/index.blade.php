@@ -83,7 +83,11 @@
                             @endif
                         </div>
 
-                        <div class="flex items-center gap-2 pt-2 border-t border-gray-100">
+                        <div class="flex items-center gap-2 pt-2 border-t border-gray-100 flex-wrap">
+                            <a href="{{ route('admin.event.registrations', $event) }}" class="text-xs font-bold text-emerald-700 hover:underline">
+                                👥 Peserta ({{ $event->registrations()->count() }})
+                            </a>
+                            <span class="text-gray-300">|</span>
                             <a href="{{ route('event.show', $event) }}" target="_blank" class="text-xs font-bold text-blue-600 hover:underline">
                                 Pratinjau
                             </a>
@@ -109,76 +113,95 @@
             </div>
 
             <!-- TABLE VIEW FOR DESKTOP (hidden sm:block) -->
-            <div class="hidden sm:block bg-white shadow-sm rounded-xl overflow-hidden border border-gray-200">
-                <table class="min-w-full divide-y divide-gray-200">
-                    <thead class="bg-gray-50 text-gray-500 text-xs uppercase font-semibold">
-                        <tr>
-                            <th class="px-6 py-3 text-left">Nama Kegiatan</th>
-                            <th class="px-6 py-3 text-left">Tipe</th>
-                            <th class="px-6 py-3 text-left">Waktu & Tempat</th>
-                            <th class="px-6 py-3 text-left">Narahubung / CP</th>
-                            <th class="px-6 py-3 text-left">Publish</th>
-                            <th class="px-6 py-3 text-right">Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-gray-200 text-sm">
-                        @forelse($events as $event)
-                            <tr class="hover:bg-gray-50">
-                                <td class="px-6 py-4">
-                                    <p class="font-bold text-gray-900 leading-snug">{{ $event->title }}</p>
-                                    @if($event->summary)
-                                        <p class="text-xs text-gray-500 mt-0.5 line-clamp-1 max-w-sm">{{ $event->summary }}</p>
-                                    @endif
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <span class="inline-block px-2.5 py-1 text-xs font-bold rounded-full border {{ $event->type_badge_classes }}">
-                                        {{ $event->type_label }}
-                                    </span>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-xs text-gray-600">
-                                    <p class="font-medium text-gray-800">📅 {{ $event->date_start->translatedFormat('d M Y, H:i') }} WIB</p>
-                                    <p class="truncate max-w-xs text-gray-500 mt-0.5">📍 {{ $event->location }}</p>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-xs text-gray-700">
-                                    @if($event->contact_person || $event->whatsapp_contact)
-                                        <span class="inline-flex items-center gap-1 font-medium bg-gray-100 text-gray-800 px-2 py-1 rounded">
-                                            📞 {{ $event->display_contact_person }}
-                                        </span>
-                                    @else
-                                        <span class="text-gray-400">-</span>
-                                    @endif
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold {{ $event->is_published ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-600' }}">
-                                        {{ $event->is_published ? 'Publik' : 'Draft' }}
-                                    </span>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-right space-x-2">
-                                    <a href="{{ route('event.show', $event) }}" target="_blank" class="text-blue-600 hover:text-blue-900 font-medium text-xs">
-                                        Lihat
-                                    </a>
-                                    <a href="{{ route('admin.event.edit', $event) }}" class="text-brand hover:text-brand-dark font-medium text-xs">
-                                        Edit
-                                    </a>
-                                    <form action="{{ route('admin.event.destroy', $event) }}" method="POST" class="inline" onsubmit="return confirm('Apakah Anda yakin ingin menghapus agenda ini?')">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="text-red-600 hover:text-red-900 font-medium text-xs">
-                                            Hapus
-                                        </button>
-                                    </form>
-                                </td>
-                            </tr>
-                        @empty
+            <div class="hidden sm:block bg-white shadow-sm rounded-xl border border-gray-200 overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200 text-left">
+                        <thead class="bg-gray-50 text-gray-500 text-xs uppercase font-semibold">
                             <tr>
-                                <td colspan="6" class="px-6 py-12 text-center text-gray-500">
-                                    Belum ada agenda kegiatan yang ditambahkan.
-                                </td>
+                                <th class="px-4 py-3 sm:px-5 text-center">Nama Kegiatan</th>
+                                <th class="px-3 py-3 text-center">Tipe</th>
+                                <th class="px-3 py-3 text-center">Peserta</th>
+                                <th class="px-4 py-3 text-center">Waktu & Tempat</th>
+                                <th class="px-4 py-3 text-center">Narahubung / CP</th>
+                                <th class="px-3 py-3 text-center">Status</th>
+                                <th class="px-4 py-3 sm:px-5 text-center whitespace-nowrap">Aksi</th>
                             </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>        </div>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200 text-sm">
+                            @forelse($events as $event)
+                                <tr class="hover:bg-gray-50 transition-colors">
+                                    <td class="px-4 py-3.5 sm:px-5">
+                                        <p class="font-bold text-gray-900 leading-snug max-w-xs">{{ $event->title }}</p>
+                                        @if($event->summary)
+                                            <p class="text-xs text-gray-500 mt-0.5 line-clamp-1 max-w-xs">{{ $event->summary }}</p>
+                                        @endif
+                                    </td>
+                                    <td class="px-3 py-3.5 whitespace-nowrap text-center">
+                                        <span class="inline-block px-2.5 py-0.5 text-xs font-bold rounded-full border {{ $event->type_badge_classes }}">
+                                            {{ $event->type_label }}
+                                        </span>
+                                    </td>
+                                    <td class="px-3 py-3.5 whitespace-nowrap text-center">
+                                        <a
+                                            href="{{ route('admin.event.registrations', $event) }}"
+                                            class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-800 hover:bg-emerald-100 border border-emerald-200 transition"
+                                            title="Klik untuk kelola peserta"
+                                        >
+                                            <span>👥</span>
+                                            <span>{{ $event->registrations()->count() }}</span>
+                                            @if($event->quota)
+                                                <span class="text-gray-400 font-normal">/ {{ $event->quota }}</span>
+                                            @endif
+                                        </a>
+                                    </td>
+                                    <td class="px-4 py-3.5 text-xs text-gray-600">
+                                        <p class="font-semibold text-gray-800 whitespace-nowrap">📅 {{ $event->date_start->translatedFormat('d M Y, H:i') }} WIB</p>
+                                        <p class="truncate max-w-[200px] text-gray-500 mt-0.5" title="{{ $event->location }}">📍 {{ $event->location }}</p>
+                                    </td>
+                                    <td class="px-4 py-3.5 text-xs text-gray-700">
+                                        @if($event->contact_person || $event->whatsapp_contact)
+                                            <span class="inline-flex items-center gap-1 font-medium bg-gray-100 text-gray-800 px-2 py-1 rounded max-w-[180px] truncate" title="{{ $event->display_contact_person }}">
+                                                📞 {{ $event->display_contact_person }}
+                                            </span>
+                                        @else
+                                            <span class="text-gray-400">-</span>
+                                        @endif
+                                    </td>
+                                    <td class="px-3 py-3.5 whitespace-nowrap text-center">
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold {{ $event->is_published ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-600' }}">
+                                            {{ $event->is_published ? 'Publik' : 'Draft' }}
+                                        </span>
+                                    </td>
+                                    <td class="px-4 py-3.5 sm:px-5 whitespace-nowrap text-right space-x-2 text-xs">
+                                        <a href="{{ route('admin.event.registrations', $event) }}" class="text-emerald-700 hover:text-emerald-900 font-bold">
+                                            Peserta
+                                        </a>
+                                        <a href="{{ route('event.show', $event) }}" target="_blank" class="text-blue-600 hover:text-blue-900 font-medium">
+                                            Lihat
+                                        </a>
+                                        <a href="{{ route('admin.event.edit', $event) }}" class="text-brand hover:text-brand-dark font-medium">
+                                            Edit
+                                        </a>
+                                        <form action="{{ route('admin.event.destroy', $event) }}" method="POST" class="inline" onsubmit="return confirm('Apakah Anda yakin ingin menghapus agenda ini?')">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="text-red-600 hover:text-red-900 font-medium">
+                                                Hapus
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="7" class="px-6 py-12 text-center text-gray-500">
+                                        Belum ada agenda kegiatan yang ditambahkan.
+                                    </td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
 
             <div class="mt-6">
                 {{ $events->links() }}

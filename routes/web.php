@@ -7,6 +7,7 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\SubsectorController;
 use App\Http\Controllers\EventController;
+use App\Http\Controllers\EventRegistrationController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -33,6 +34,9 @@ Route::get('/produk-publik/{product}', [UmkmController::class, 'produkDetail'])-
 // Agenda, Pelatihan, Pendampingan, & Workshop LP UMKM PWM DIY
 Route::get('/agenda', [EventController::class, 'index'])->name('event.index');
 Route::get('/agenda/{event:slug}', [EventController::class, 'show'])->name('event.show');
+Route::get('/agenda/{event:slug}/daftar', [EventRegistrationController::class, 'create'])->name('event.register');
+Route::post('/agenda/{event:slug}/daftar', [EventRegistrationController::class, 'store'])->name('event.register.store');
+Route::get('/agenda/{event:slug}/daftar/sukses', [EventRegistrationController::class, 'success'])->name('event.register.success');
 
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
@@ -63,6 +67,9 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
 
     // F14: listing + search semua UMKM/produk untuk moderasi
     Route::get('/umkm', [UmkmProfileController::class, 'index'])->name('umkm-profiles.index');
+    Route::get('/umkm/import-template', [\App\Http\Controllers\UmkmImportController::class, 'downloadTemplate'])->name('umkm.import.template');
+    Route::get('/umkm/import-sample', [\App\Http\Controllers\UmkmImportController::class, 'downloadSampleData'])->name('umkm.import.sample');
+    Route::post('/umkm/import', [\App\Http\Controllers\UmkmImportController::class, 'import'])->name('umkm.import');
     Route::get('/produk', [ProductController::class, 'adminIndex'])->name('produk.index');
 
     // F15: suspend / aktifkan kembali akun UMKM bermasalah
@@ -72,6 +79,10 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::resource('kategori', CategoryController::class)->except(['show']);
     Route::resource('subsektor', SubsectorController::class)->except(['index', 'show']);
     Route::get('/event', [EventController::class, 'adminIndex'])->name('event.index');
+    Route::get('/event/{event}/peserta', [EventRegistrationController::class, 'adminIndex'])->name('event.registrations');
+    Route::patch('/event/{event}/peserta/{registration}', [EventRegistrationController::class, 'updateStatus'])->name('event.registrations.update');
+    Route::delete('/event/{event}/peserta/{registration}', [EventRegistrationController::class, 'destroy'])->name('event.registrations.destroy');
+    Route::get('/event/{event}/peserta/export', [EventRegistrationController::class, 'exportCsv'])->name('event.registrations.export');
     Route::resource('event', EventController::class)->except(['index', 'show']);
 });
 

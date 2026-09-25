@@ -37,6 +37,30 @@ class Event extends Model
         'quota'        => 'integer',
     ];
 
+    public function registrations(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(EventRegistration::class);
+    }
+
+    public function getRegisteredCountAttribute(): int
+    {
+        return $this->registrations()->count();
+    }
+
+    public function getIsFullAttribute(): bool
+    {
+        return $this->quota !== null && $this->registered_count >= $this->quota;
+    }
+
+    public function getRemainingQuotaAttribute(): ?int
+    {
+        if ($this->quota === null) {
+            return null;
+        }
+
+        return max(0, $this->quota - $this->registered_count);
+    }
+
     public function scopePublished(Builder $query): Builder
     {
         return $query->where('is_published', true);

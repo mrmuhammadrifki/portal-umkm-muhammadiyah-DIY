@@ -1,13 +1,53 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">Semua UMKM (Moderasi)</h2>
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <h2 class="font-semibold text-xl text-gray-800 leading-tight">Semua UMKM (Moderasi)</h2>
+            <div class="flex items-center gap-2">
+                <a
+                    href="{{ route('admin.umkm.import.template') }}"
+                    class="inline-flex items-center gap-1.5 px-3.5 py-2 bg-white border border-emerald-600 text-emerald-700 hover:bg-emerald-50 font-bold text-xs rounded-lg shadow-sm transition"
+                    title="Unduh format template Excel untuk data UMKM"
+                >
+                    <span>📥</span> Unduh Template Excel
+                </a>
+                <button
+                    type="button"
+                    x-data
+                    @click="$dispatch('open-import-modal')"
+                    class="inline-flex items-center gap-1.5 px-4 py-2 bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs rounded-lg shadow-sm transition cursor-pointer"
+                >
+                    <span>📤</span> Import Excel UMKM
+                </button>
+            </div>
+        </div>
     </x-slot>
 
-    <div class="py-12">
+    <div class="py-12" x-data="{ showImportModal: false }" @open-import-modal.window="showImportModal = true">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
 
             @if(session('success'))
-                <div class="p-4 bg-green-50 text-green-700 rounded-md border border-green-200">{{ session('success') }}</div>
+                <div class="p-4 bg-green-50 text-green-700 rounded-md border border-green-200 text-sm flex items-center gap-2">
+                    <span>✅</span> {{ session('success') }}
+                </div>
+            @endif
+
+            @if(session('error'))
+                <div class="p-4 bg-red-50 text-red-700 rounded-md border border-red-200 text-sm flex items-center gap-2">
+                    <span>⚠️</span> {{ session('error') }}
+                </div>
+            @endif
+
+            @if(session('import_errors') && count(session('import_errors')) > 0)
+                <div class="p-4 bg-amber-50 text-amber-800 rounded-md border border-amber-200 text-xs space-y-1">
+                    <p class="font-bold flex items-center gap-1">
+                        <span>ℹ️</span> Catatan baris data yang dilewati saat proses import:
+                    </p>
+                    <ul class="list-disc list-inside space-y-0.5 max-h-40 overflow-y-auto">
+                        @foreach(session('import_errors') as $err)
+                            <li>{{ $err }}</li>
+                        @endforeach
+                    </ul>
+                </div>
             @endif
 
             <div class="p-4 sm:p-6 bg-white shadow sm:rounded-lg">
@@ -159,5 +199,148 @@
             </div>
 
         </div>
+
+        <!-- MODAL IMPORT EXCEL DATA UMKM -->
+        <div
+            x-show="showImportModal"
+            x-cloak
+            class="fixed inset-0 z-50 overflow-y-auto"
+            aria-labelledby="modal-title"
+            role="dialog"
+            aria-modal="true"
+        >
+            <!-- BACKDROP OVERLAY -->
+            <div
+                x-show="showImportModal"
+                x-transition:enter="ease-out duration-300"
+                x-transition:enter-start="opacity-0"
+                x-transition:enter-end="opacity-100"
+                x-transition:leave="ease-in duration-200"
+                x-transition:leave-start="opacity-100"
+                x-transition:leave-end="opacity-0"
+                class="fixed inset-0 bg-gray-900/60 backdrop-blur-sm transition-opacity"
+                @click="showImportModal = false"
+            ></div>
+
+            <div class="flex min-h-screen items-center justify-center p-4 text-center sm:p-0">
+                <div
+                    x-show="showImportModal"
+                    x-transition:enter="ease-out duration-300"
+                    x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+                    x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
+                    x-transition:leave="ease-in duration-200"
+                    x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
+                    x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+                    class="relative transform overflow-hidden rounded-2xl bg-white text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-lg border border-gray-100"
+                    x-data="{ isUploading: false, fileName: '' }"
+                >
+                    <!-- MODAL HEADER -->
+                    <div class="bg-gradient-to-r from-emerald-800 to-emerald-700 px-6 py-4 text-white flex items-center justify-between">
+                        <div class="flex items-center gap-2">
+                            <span class="text-xl">📊</span>
+                            <h3 class="text-base font-bold" id="modal-title">
+                                Import Data UMKM Massal (Excel)
+                            </h3>
+                        </div>
+                        <button
+                            type="button"
+                            @click="showImportModal = false"
+                            class="text-white/80 hover:text-white text-xl font-bold leading-none p-1"
+                        >
+                            &times;
+                        </button>
+                    </div>
+
+                    <!-- MODAL BODY -->
+                    <form
+                        action="{{ route('admin.umkm.import') }}"
+                        method="POST"
+                        enctype="multipart/form-data"
+                        @submit="isUploading = true"
+                        class="p-6 space-y-5"
+                    >
+                        @csrf
+
+                        <!-- PETUNJUK & TEMPLATE LINK -->
+                        <div class="bg-emerald-50 rounded-xl p-4 border border-emerald-200 text-xs text-emerald-950 space-y-2">
+                            <p class="font-bold flex items-center gap-1.5 text-emerald-900">
+                                <span>💡</span> Panduan Import Data:
+                            </p>
+                            <ul class="list-disc list-inside space-y-1 text-emerald-800">
+                                <li>Pastikan file Anda berformat <strong>.xlsx</strong> atau <strong>.xls</strong>.</li>
+                                <li>Kolom wajib diisi: <strong>Nama Usaha, Nama Pemilik, Email Akun, dan WhatsApp</strong>.</li>
+                                <li>Email akan digunakan sebagai akun login pemilik UMKM.</li>
+                            </ul>
+                            <div class="pt-2.5 border-t border-emerald-200/60 flex flex-wrap items-center justify-between gap-2">
+                                <span class="text-[11px] text-emerald-800 font-semibold">File Bantuan & Uji Coba:</span>
+                                <div class="flex items-center gap-2">
+                                    <a
+                                        href="{{ route('admin.umkm.import.sample') }}"
+                                        class="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-900 bg-emerald-300/80 hover:bg-emerald-300 px-2.5 py-1 rounded transition shadow-xs"
+                                        title="Unduh file Excel berisi 10 data UMKM nyata DIY siap uji coba langsung"
+                                    >
+                                        <span>📊</span> Unduh Data Uji Coba (.xlsx)
+                                    </a>
+                                    <a
+                                        href="{{ route('admin.umkm.import.template') }}"
+                                        class="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-900 bg-emerald-200/70 hover:bg-emerald-200 px-2.5 py-1 rounded transition"
+                                        title="Unduh format template Excel"
+                                    >
+                                        <span>📥</span> Template (.xlsx)
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- INPUT FILE -->
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-700 uppercase mb-2">
+                                Pilih File Excel (.xlsx / .xls) <span class="text-red-500">*</span>
+                            </label>
+                            <div class="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center hover:border-emerald-500 transition-colors bg-gray-50/50">
+                                <span class="text-3xl block mb-2">📁</span>
+                                <input
+                                    type="file"
+                                    name="file"
+                                    required
+                                    accept=".xlsx, .xls"
+                                    @change="fileName = $event.target.files[0] ? $event.target.files[0].name : ''"
+                                    class="block w-full text-xs text-gray-500 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-emerald-100 file:text-emerald-800 hover:file:bg-emerald-200 cursor-pointer"
+                                >
+                                <p x-show="fileName" class="text-xs font-bold text-emerald-700 mt-2 truncate" x-text="'File terpilih: ' + fileName"></p>
+                                <p x-show="!fileName" class="text-[11px] text-gray-400 mt-1">Maksimal ukuran file: 10 MB</p>
+                            </div>
+                        </div>
+
+                        <!-- MODAL FOOTER BUTTONS -->
+                        <div class="flex items-center justify-end gap-3 pt-3 border-t border-gray-100">
+                            <button
+                                type="button"
+                                @click="showImportModal = false"
+                                :disabled="isUploading"
+                                class="px-4 py-2 rounded-lg border border-gray-300 text-xs font-semibold text-gray-700 hover:bg-gray-50 transition"
+                            >
+                                Batal
+                            </button>
+                            <button
+                                type="submit"
+                                :disabled="isUploading"
+                                class="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs shadow-md transition disabled:opacity-50 cursor-pointer"
+                            >
+                                <span x-show="!isUploading">🚀 Mulai Import Data</span>
+                                <span x-show="isUploading" class="inline-flex items-center gap-1.5">
+                                    <svg class="animate-spin h-3.5 w-3.5 text-white" fill="none" viewBox="0 0 24 24">
+                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                                    </svg>
+                                    Mengimpor Data...
+                                </span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
     </div>
 </x-app-layout>

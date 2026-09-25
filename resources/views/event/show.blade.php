@@ -112,6 +112,20 @@
                                     </p>
                                 </div>
 
+                                @if($event->quota)
+                                    <div>
+                                        <p class="text-xs text-gray-500 uppercase font-semibold">Kuota Peserta</p>
+                                        <p class="font-semibold text-gray-800 mt-0.5 flex items-center justify-between">
+                                            <span>👥 {{ $event->quota }} Orang</span>
+                                            @if($event->is_full)
+                                                <span class="text-xs bg-red-100 text-red-700 font-bold px-2.5 py-0.5 rounded-full">Penuh</span>
+                                            @else
+                                                <span class="text-xs bg-emerald-100 text-emerald-800 font-bold px-2.5 py-0.5 rounded-full">Sisa {{ $event->remaining_quota }} Kursi</span>
+                                            @endif
+                                        </p>
+                                    </div>
+                                @endif
+
                                 @if($event->contact_person || $event->whatsapp_contact)
                                     <div>
                                         <p class="text-xs text-gray-500 uppercase font-semibold">Contact Person</p>
@@ -124,24 +138,19 @@
 
                             <!-- TOMBOL PENDAFTARAN & KONTAK -->
                             <div class="pt-4 border-t border-brand-200 space-y-3">
-                                @if($event->registration_url)
+                                @if($event->is_full)
+                                    <div class="w-full flex items-center justify-center gap-2 bg-gray-200 text-gray-600 font-bold py-3.5 px-4 rounded-xl text-sm text-center">
+                                        <span>🔒</span>
+                                        <span>Kuota Pendaftaran Penuh</span>
+                                    </div>
+                                @else
                                     <a
-                                        href="{{ $event->registration_url }}"
-                                        target="_blank"
-                                        class="w-full flex items-center justify-center gap-2 bg-brand hover:bg-brand-dark text-white font-bold py-3 px-4 rounded-xl text-sm shadow-md hover:shadow-lg transition text-center"
+                                        href="{{ route('event.register', $event->slug) }}"
+                                        class="w-full flex items-center justify-center gap-2 bg-brand hover:bg-brand-dark text-white font-bold py-3.5 px-4 rounded-xl text-sm shadow-md hover:shadow-lg transition text-center group"
                                     >
-                                        <span>🔗</span>
+                                        <span class="group-hover:translate-x-0.5 transition-transform">✍️</span>
                                         <span>Daftar Sekarang</span>
                                     </a>
-                                @else
-                                    <button
-                                        type="button"
-                                        class="w-full flex items-center justify-center gap-2 bg-brand hover:bg-brand-dark text-white font-bold py-3 px-4 rounded-xl text-sm shadow-md hover:shadow-lg transition cursor-pointer"
-                                        onclick="alert('Pendaftaran dibuka sesuai tanggal penjaringan pada deskripsi kegiatan.')"
-                                    >
-                                        <span>🔗</span>
-                                        <span>Daftar Kegiatan</span>
-                                    </button>
                                 @endif
 
                                 @if($event->clean_whatsapp)
