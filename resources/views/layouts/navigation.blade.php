@@ -9,7 +9,7 @@
                         <x-application-logo class="block h-8 w-auto fill-current text-brand" />
                         <span class="hidden md:inline font-bold text-gray-800 tracking-tight">Portal UMKM</span>
                     </a>
-                    <span class="px-2 py-0.5 text-xs font-bold rounded-full {{ auth()->user()->role === 'admin' ? 'bg-purple-100 text-purple-800' : 'bg-blue-100 text-blue-800' }}">
+                    <span class="px-2 py-0.5 text-xs font-bold rounded-full {{ ['admin' => 'bg-purple-100 text-purple-800', 'pengunjung' => 'bg-amber-100 text-amber-800'][auth()->user()->role] ?? 'bg-blue-100 text-blue-800' }}">
                         {{ strtoupper(auth()->user()->role) }}
                     </span>
                 </div>
@@ -36,7 +36,7 @@
                         <x-nav-link :href="route('admin.event.index')" :active="request()->routeIs('admin.event.*')">
                             Kelola Event
                         </x-nav-link>
-                    @else
+                    @elseif(auth()->user()->role === 'umkm')
                         <x-nav-link :href="route('umkm-profile.edit')" :active="request()->routeIs('umkm-profile.edit')">
                             Profil Usaha
                         </x-nav-link>
@@ -120,7 +120,7 @@
                 <x-responsive-nav-link :href="route('admin.event.index')" :active="request()->routeIs('admin.event.*')">
                     Kelola Event
                 </x-responsive-nav-link>
-            @else
+            @elseif(auth()->user()->role === 'umkm')
                 <x-responsive-nav-link :href="route('umkm-profile.edit')" :active="request()->routeIs('umkm-profile.edit')">
                     Profil Usaha
                 </x-responsive-nav-link>

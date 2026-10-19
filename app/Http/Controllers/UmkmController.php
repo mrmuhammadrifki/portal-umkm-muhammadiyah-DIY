@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Category;
 use App\Models\Product;
 use App\Models\UmkmProfile;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
@@ -132,5 +133,50 @@ class UmkmController extends Controller
         );
 
         return view('produk-detail', ['product' => $product]);
+    }
+
+    /**
+     * Pesan ke UMKM via WhatsApp — hanya untuk pengguna yang sudah login.
+     * Nomor tidak dirender di halaman publik; guest diarahkan login dulu
+     * (middleware auth) lalu kembali ke sini dan diteruskan ke wa.me.
+     */
+    public function hubungiUmkm(Request $request, $id): RedirectResponse
+    {
+        $umkm = UmkmProfile::where('status', 'approved')
+            ->whereHas('user', fn ($q) => $q->where('is_active', true))
+            ->findOrFail($id);
+
+        return $this->whatsappRedirect(
+            $umkm,
+            "Halo {$umkm->business_name}, saya {$request->user()->name} ingin memesan produk Anda yang saya lihat di Portal UMKM Muhammadiyah DIY."
+        );
+    }
+
+    public function hubungiProduk(Request $request, Product $product): RedirectResponse
+    {
+        $product->load('umkmProfile.user');
+
+        abort_unless(
+            $product->status === 'active'
+                && $product->umkmProfile->status === 'approved'
+                && $product->umkmProfile->user->is_active,
+            404
+        );
+
+        return $this->whatsappRedirect(
+            $product->umkmProfile,
+            "Halo {$product->umkmProfile->business_name}, saya {$request->user()->name} ingin memesan produk {$product->name} yang saya lihat di Portal UMKM."
+        );
+    }
+
+    private function whatsappRedirect(UmkmProfile $umkm, string $message): RedirectResponse
+    {
+        $number = preg_replace('/[^0-9]/', '', $umkm->whatsapp);
+
+        if (str_starts_with($number, '0')) {
+            $number = '62' . substr($number, 1);
+        }
+
+        return redirect()->away('https://wa.me/' . $number . '?text=' . rawurlencode($message));
     }
 }

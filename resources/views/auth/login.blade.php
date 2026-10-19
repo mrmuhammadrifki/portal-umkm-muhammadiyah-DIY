@@ -53,6 +53,13 @@
             </label>
         </div>
 
+        <p class="mt-4 text-sm text-gray-600">
+            Belum punya akun?
+            <a href="{{ route('register.pengunjung') }}" class="underline text-brand hover:text-brand-dark">Daftar sebagai Pengunjung</a>
+            atau
+            <a href="{{ route('register') }}" class="underline text-brand hover:text-brand-dark">daftarkan usaha Anda</a>.
+        </p>
+
         <div class="flex items-center justify-end mt-4">
             @if (Route::has('password.request'))
                 <a class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand" href="{{ route('password.request') }}">

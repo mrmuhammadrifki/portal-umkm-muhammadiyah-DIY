@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Product;
 use App\Models\UmkmProfile;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
@@ -13,9 +14,14 @@ class DashboardController extends Controller
     private const MIKRO_MAX    = 25_000_000;      // < Rp 25 juta/bulan  → < Rp 300 juta/tahun
     private const KECIL_MAX    = 208_333_333;     // < Rp 208 juta/bulan → < Rp 2,5 miliar/tahun
 
-    public function index(Request $request): View
+    public function index(Request $request): View|RedirectResponse
     {
         $user = $request->user();
+
+        // Pengunjung tidak punya dashboard — langsung ke katalog
+        if ($user->role === 'pengunjung') {
+            return redirect()->route('katalog.publik');
+        }
 
         if ($user->role === 'admin') {
             $approved = UmkmProfile::where('status', 'approved');

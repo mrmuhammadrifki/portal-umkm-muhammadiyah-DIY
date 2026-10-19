@@ -39,20 +39,26 @@ Route::post('/agenda/{event:slug}/daftar', [EventRegistrationController::class, 
 Route::get('/agenda/{event:slug}/daftar/sukses', [EventRegistrationController::class, 'success'])->name('event.register.success');
 
 Route::middleware('auth')->group(function () {
+    // Kontak WhatsApp UMKM hanya untuk pengguna yang sudah login
+    Route::get('/katalog/{id}/hubungi', [UmkmController::class, 'hubungiUmkm'])->name('katalog.hubungi');
+    Route::get('/produk-publik/{product}/hubungi', [UmkmController::class, 'hubungiProduk'])->name('katalog.produk-hubungi');
+
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     // Profil usaha milik UMKM yang sedang login (satu profil per user)
-    Route::get('/profil-usaha', [UmkmProfileController::class, 'edit'])->name('umkm-profile.edit');
-    Route::put('/profil-usaha', [UmkmProfileController::class, 'update'])->name('umkm-profile.update');
+    Route::middleware('role:umkm')->group(function () {
+        Route::get('/profil-usaha', [UmkmProfileController::class, 'edit'])->name('umkm-profile.edit');
+        Route::put('/profil-usaha', [UmkmProfileController::class, 'update'])->name('umkm-profile.update');
 
-    // Produk milik UMKM yang sedang login
-    Route::get('/produk', [ProductController::class, 'index'])->name('produk.index');
-    Route::get('/produk/tambah', [ProductController::class, 'create'])->name('produk.create');
-    Route::post('/produk', [ProductController::class, 'store'])->name('produk.store');
-    Route::get('/produk/{produk}/edit', [ProductController::class, 'edit'])->name('produk.edit');
-    Route::put('/produk/{produk}', [ProductController::class, 'update'])->name('produk.update');
-    Route::delete('/produk/{produk}', [ProductController::class, 'destroy'])->name('produk.destroy');
-    Route::delete('/produk/{produk}/foto/{image}', [ProductController::class, 'destroyImage'])->name('produk.image.destroy');
+        // Produk milik UMKM yang sedang login
+        Route::get('/produk', [ProductController::class, 'index'])->name('produk.index');
+        Route::get('/produk/tambah', [ProductController::class, 'create'])->name('produk.create');
+        Route::post('/produk', [ProductController::class, 'store'])->name('produk.store');
+        Route::get('/produk/{produk}/edit', [ProductController::class, 'edit'])->name('produk.edit');
+        Route::put('/produk/{produk}', [ProductController::class, 'update'])->name('produk.update');
+        Route::delete('/produk/{produk}', [ProductController::class, 'destroy'])->name('produk.destroy');
+        Route::delete('/produk/{produk}/foto/{image}', [ProductController::class, 'destroyImage'])->name('produk.image.destroy');
+    });
 
     // Rute Profil Bawaan Breeze yang dicari oleh sistem
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

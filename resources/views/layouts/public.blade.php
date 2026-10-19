@@ -35,12 +35,50 @@
                     <a href="{{ route('event.index') }}" class="hover:bg-brand-dark px-3 py-2 rounded-md text-sm font-medium transition {{ request()->routeIs('event.*') ? 'bg-brand-dark' : '' }}">
                         Agenda & Pelatihan
                     </a>
-                    <a href="{{ route('login') }}" class="hover:bg-brand-dark px-3 py-2 rounded-md text-sm font-medium transition">
-                        Login
-                    </a>
-                    <a href="{{ route('register') }}" class="bg-brand-light hover:brightness-110 px-3 py-2 rounded-md text-sm font-medium transition">
-                        Daftar UMKM
-                    </a>
+                    @auth
+                        @if(auth()->user()->role !== 'pengunjung')
+                            <a href="{{ route('dashboard') }}" class="hover:bg-brand-dark px-3 py-2 rounded-md text-sm font-medium transition">
+                                Dashboard
+                            </a>
+                        @endif
+
+                        <x-dropdown align="right" width="48">
+                            <x-slot name="trigger">
+                                <button type="button" class="inline-flex items-center gap-1 hover:bg-brand-dark px-3 py-2 rounded-md text-sm font-medium transition focus:outline-none">
+                                    <span class="max-w-[10rem] truncate">{{ auth()->user()->name }}</span>
+                                    <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                    </svg>
+                                </button>
+                            </x-slot>
+
+                            <x-slot name="content">
+                                <x-dropdown-link :href="route('profile.edit')">
+                                    Profile
+                                </x-dropdown-link>
+
+                                <form method="POST" action="{{ route('logout') }}">
+                                    @csrf
+                                    <x-dropdown-link :href="route('logout')" onclick="event.preventDefault(); this.closest('form').submit();">
+                                        Logout
+                                    </x-dropdown-link>
+                                </form>
+                            </x-slot>
+                        </x-dropdown>
+
+                        @if(auth()->user()->role === 'pengunjung')
+                            <a href="{{ route('register') }}" class="bg-brand-light hover:brightness-110 px-3 py-2 rounded-md text-sm font-medium transition">
+                                Daftar UMKM
+                            </a>
+                        @endif
+                    @else
+                        <a href="{{ route('login') }}" class="hover:bg-brand-dark px-3 py-2 rounded-md text-sm font-medium transition">
+                            Login
+                        </a>
+                        <a href="{{ route('register') }}" class="bg-brand-light hover:brightness-110 px-3 py-2 rounded-md text-sm font-medium transition">
+                            Daftar UMKM
+                        </a>
+                    @endauth
                 </div>
 
                 <!-- Hamburger (mobile) -->
@@ -69,12 +107,40 @@
                 <a href="{{ route('event.index') }}" class="block px-3 py-2 rounded-md text-sm font-medium transition {{ request()->routeIs('event.*') ? 'bg-brand-dark' : 'hover:bg-brand-dark' }}">
                     Agenda & Pelatihan
                 </a>
-                <a href="{{ route('login') }}" class="block px-3 py-2 rounded-md text-sm font-medium hover:bg-brand-dark transition">
-                    Login
-                </a>
-                <a href="{{ route('register') }}" class="block px-3 py-2 rounded-md text-sm font-medium bg-brand-light hover:brightness-110 transition">
-                    Daftar UMKM
-                </a>
+                @auth
+                    @if(auth()->user()->role !== 'pengunjung')
+                        <a href="{{ route('dashboard') }}" class="block px-3 py-2 rounded-md text-sm font-medium hover:bg-brand-dark transition">
+                            Dashboard
+                        </a>
+                    @endif
+                    <div class="border-t border-brand-dark mt-2 pt-2" x-data="{ account: false }">
+                        <button type="button" @click="account = ! account" class="flex w-full items-center justify-between px-3 py-2 rounded-md text-sm font-medium hover:bg-brand-dark transition">
+                            <span class="truncate">{{ auth()->user()->name }}</span>
+                            <svg class="fill-current h-4 w-4 transition" :class="{ 'rotate-180': account }" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                            </svg>
+                        </button>
+                        <div x-show="account" x-transition style="display: none;" class="pl-3 space-y-1">
+                            <a href="{{ route('profile.edit') }}" class="block px-3 py-2 rounded-md text-sm font-medium hover:bg-brand-dark transition">Profile</a>
+                            <form method="POST" action="{{ route('logout') }}">
+                                @csrf
+                                <button type="submit" class="block w-full text-left px-3 py-2 rounded-md text-sm font-medium hover:bg-brand-dark transition">Logout</button>
+                            </form>
+                        </div>
+                    </div>
+                    @if(auth()->user()->role === 'pengunjung')
+                        <a href="{{ route('register') }}" class="block px-3 py-2 rounded-md text-sm font-medium bg-brand-light hover:brightness-110 transition">
+                            Daftar UMKM
+                        </a>
+                    @endif
+                @else
+                    <a href="{{ route('login') }}" class="block px-3 py-2 rounded-md text-sm font-medium hover:bg-brand-dark transition">
+                        Login
+                    </a>
+                    <a href="{{ route('register') }}" class="block px-3 py-2 rounded-md text-sm font-medium bg-brand-light hover:brightness-110 transition">
+                        Daftar UMKM
+                    </a>
+                @endauth
             </div>
         </div>
     </nav>
@@ -105,8 +171,10 @@
                     <ul class="text-sm text-brand-100 space-y-2">
                         <li><a href="{{ route('katalog.produk') }}" class="hover:text-white transition">🛍️ Katalog Produk</a></li>
                         <li><a href="{{ route('event.index') }}" class="hover:text-white transition">📅 Agenda & Pelatihan LP UMKM</a></li>
-                        <li><a href="{{ route('login') }}" class="hover:text-white transition">🔐 Login Admin / Pelaku Usaha</a></li>
-                        <li><a href="{{ route('register') }}" class="hover:text-white transition">📝 Pendaftaran Mitra Baru</a></li>
+                        @guest
+                            <li><a href="{{ route('login') }}" class="hover:text-white transition">🔐 Login Admin / Pelaku Usaha</a></li>
+                            <li><a href="{{ route('register') }}" class="hover:text-white transition">📝 Pendaftaran Mitra Baru</a></li>
+                        @endguest
                     </ul>
                 </div>
             </div>

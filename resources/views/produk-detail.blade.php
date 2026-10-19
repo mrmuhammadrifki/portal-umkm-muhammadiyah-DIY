@@ -119,11 +119,23 @@
                         </a>
                     </p>
 
-                    <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $product->umkmProfile->whatsapp) }}?text=Halo%20{{ urlencode($product->umkmProfile->business_name) }},%20saya%20tertarik%20dengan%20produk%20{{ urlencode($product->name) }}%20yang%20saya%20lihat%20di%20Portal%20UMKM."
-                       target="_blank"
-                       class="w-full inline-flex justify-center items-center px-6 py-3 border border-transparent text-base font-medium rounded-xl text-white bg-green-600 hover:bg-green-700 shadow-md transition text-center font-bold">
-                        Hubungi via WhatsApp
-                    </a>
+                    @auth
+                        <a href="{{ route('katalog.produk-hubungi', $product) }}"
+                           target="_blank" rel="noopener"
+                           class="w-full inline-flex justify-center items-center px-6 py-3 border border-transparent text-base font-medium rounded-xl text-white bg-green-600 hover:bg-green-700 shadow-md transition text-center font-bold">
+                            Pesan via WhatsApp
+                        </a>
+                    @else
+                        <a href="{{ route('katalog.produk-hubungi', $product) }}"
+                           class="w-full inline-flex justify-center items-center px-6 py-3 border border-gray-300 text-base font-bold rounded-xl text-gray-700 bg-gray-50 hover:bg-gray-100 transition text-center">
+                            Login untuk Memesan via WhatsApp
+                        </a>
+                        <p class="mt-2 text-xs text-gray-500 text-center">
+                            Pemesanan via WhatsApp hanya untuk pengguna yang sudah login.
+                            Belum punya akun?
+                            <a href="{{ route('register.pengunjung') }}" class="font-semibold text-brand hover:underline">Daftar sebagai Pengunjung</a>
+                        </p>
+                    @endauth
                 </div>
             </div>
         </div>

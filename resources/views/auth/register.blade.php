@@ -85,6 +85,11 @@
         }
         </script>
 
+        <p class="mt-4 text-sm text-gray-600">
+            Hanya ingin membeli / memesan produk?
+            <a href="{{ route('register.pengunjung') }}" class="underline text-brand hover:text-brand-dark">Daftar sebagai Pengunjung</a>
+        </p>
+
         <div class="flex items-center justify-end mt-4">
             <a class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand" href="{{ route('login') }}">
                 {{ __('Already registered?') }}

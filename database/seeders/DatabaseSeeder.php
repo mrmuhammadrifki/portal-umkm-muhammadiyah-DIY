@@ -16,6 +16,7 @@ class DatabaseSeeder extends Seeder
             SubsectorSeeder::class,
             UserAndUmkmSeeder::class,
             UmkmApprovalSeeder::class,
+            PengunjungSeeder::class,
             ProductSeeder::class,
             EventSeeder::class,
         ]);

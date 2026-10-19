@@ -11,11 +11,19 @@ use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\VerifyEmailController;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware('guest')->group(function () {
-    Route::get('register', [RegisteredUserController::class, 'create'])
-                ->name('register');
+// Daftar UMKM: tamu dan pengunjung (akun pembeli) boleh membuka; admin/UMKM
+// ditolak di controller (lihat RegisteredUserController::redirectIfNotEligible).
+Route::get('register', [RegisteredUserController::class, 'create'])
+            ->name('register');
 
-    Route::post('register', [RegisteredUserController::class, 'store'])
+Route::post('register', [RegisteredUserController::class, 'store'])
+            ->middleware('throttle:6,1');
+
+Route::middleware('guest')->group(function () {
+    Route::get('register/pengunjung', [RegisteredUserController::class, 'createPengunjung'])
+                ->name('register.pengunjung');
+
+    Route::post('register/pengunjung', [RegisteredUserController::class, 'storePengunjung'])
                 ->middleware('throttle:6,1');
 
     Route::get('login', [AuthenticatedSessionController::class, 'create'])

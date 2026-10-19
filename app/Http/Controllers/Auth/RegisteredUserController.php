@@ -20,9 +20,61 @@ class RegisteredUserController extends Controller
     /**
      * Display the registration view.
      */
-    public function create(): View
+    public function create(): View|RedirectResponse
     {
-        return view('auth.register');
+        return $this->redirectIfNotEligible() ?? view('auth.register');
+    }
+
+    /**
+     * Admin / UMKM yang sudah login tidak perlu daftar lagi; pengunjung boleh
+     * mendaftarkan usaha (akun UMKM baru menggantikan sesi pengunjung).
+     */
+    private function redirectIfNotEligible(): ?RedirectResponse
+    {
+        if (Auth::check() && Auth::user()->role !== 'pengunjung') {
+            return redirect(RouteServiceProvider::HOME);
+        }
+
+        return null;
+    }
+
+    /**
+     * Form pendaftaran pengunjung (pembeli) — tanpa profil usaha.
+     */
+    public function createPengunjung(): View
+    {
+        return view('auth.register-pengunjung');
+    }
+
+    /**
+     * Daftarkan pengunjung. Setelah daftar, kembali ke halaman yang tadi
+     * dituju (mis. tombol pesan WhatsApp), atau ke katalog.
+     */
+    public function storePengunjung(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
+            'phone' => ['required', 'numeric', 'digits_between:9,15'],
+            'password' => ['required', 'confirmed', Rules\Password::defaults()],
+        ], [
+            'phone.numeric' => 'Nomor WhatsApp hanya boleh diisi dengan angka.',
+            'phone.digits_between' => 'Nomor WhatsApp harus 9–15 digit.',
+        ]);
+
+        $user = User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'phone' => $request->phone,
+            'password' => Hash::make($request->password),
+            'role' => 'pengunjung',
+        ]);
+
+        event(new Registered($user));
+
+        Auth::login($user);
+
+        return redirect()->intended(route('katalog.publik'));
     }
 
     /**
@@ -32,6 +84,10 @@ class RegisteredUserController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
+        if ($redirect = $this->redirectIfNotEligible()) {
+            return $redirect;
+        }
+
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
