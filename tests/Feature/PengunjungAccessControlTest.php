@@ -29,6 +29,7 @@ class PengunjungAccessControlTest extends TestCase
         'profile.edit', 'profile.update', 'profile.destroy',
         'password.update', 'password.confirm', 'verification.notice', 'verification.verify', 'verification.send',
         'katalog.hubungi', 'katalog.produk-hubungi',   // pesan via WhatsApp
+        'riwayat.index',              // riwayat pesanan milik sendiri
         'confirm-password',           // POST bawaan Breeze (tanpa nama), dikenali lewat URI
     ];
 

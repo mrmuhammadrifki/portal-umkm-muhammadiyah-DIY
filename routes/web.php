@@ -3,6 +3,7 @@ use App\Http\Controllers\UmkmController;
 use App\Http\Controllers\UmkmProfileController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\RiwayatController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\SubsectorController;
@@ -44,6 +45,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/produk-publik/{product}/hubungi', [UmkmController::class, 'hubungiProduk'])->name('katalog.produk-hubungi');
 
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+    // Riwayat tombol "Pesan via WhatsApp" milik pengguna yang login
+    Route::get('/riwayat', [RiwayatController::class, 'index'])->name('riwayat.index');
 
     // Profil usaha milik UMKM yang sedang login (satu profil per user)
     Route::middleware('role:umkm')->group(function () {

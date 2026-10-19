@@ -57,6 +57,10 @@
                                     Profile
                                 </x-dropdown-link>
 
+                                <x-dropdown-link :href="route('riwayat.index')">
+                                    Riwayat Pesanan
+                                </x-dropdown-link>
+
                                 <form method="POST" action="{{ route('logout') }}">
                                     @csrf
                                     <x-dropdown-link :href="route('logout')" onclick="event.preventDefault(); this.closest('form').submit();">
@@ -122,6 +126,7 @@
                         </button>
                         <div x-show="account" x-transition style="display: none;" class="pl-3 space-y-1">
                             <a href="{{ route('profile.edit') }}" class="block px-3 py-2 rounded-md text-sm font-medium hover:bg-brand-dark transition">Profile</a>
+                            <a href="{{ route('riwayat.index') }}" class="block px-3 py-2 rounded-md text-sm font-medium hover:bg-brand-dark transition">Riwayat Pesanan</a>
                             <form method="POST" action="{{ route('logout') }}">
                                 @csrf
                                 <button type="submit" class="block w-full text-left px-3 py-2 rounded-md text-sm font-medium hover:bg-brand-dark transition">Logout</button>

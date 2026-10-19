@@ -146,6 +146,11 @@ class UmkmController extends Controller
             ->whereHas('user', fn ($q) => $q->where('is_active', true))
             ->findOrFail($id);
 
+        $request->user()->whatsappOrders()->create([
+            'umkm_id'       => $umkm->id,
+            'business_name' => $umkm->business_name,
+        ]);
+
         return $this->whatsappRedirect(
             $umkm,
             "Halo {$umkm->business_name}, saya {$request->user()->name} ingin memesan produk Anda yang saya lihat di Portal UMKM Muhammadiyah DIY."
@@ -162,6 +167,13 @@ class UmkmController extends Controller
                 && $product->umkmProfile->user->is_active,
             404
         );
+
+        $request->user()->whatsappOrders()->create([
+            'umkm_id'       => $product->umkm_id,
+            'product_id'    => $product->id,
+            'business_name' => $product->umkmProfile->business_name,
+            'product_name'  => $product->name,
+        ]);
 
         return $this->whatsappRedirect(
             $product->umkmProfile,
