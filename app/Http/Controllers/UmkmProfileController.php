@@ -109,31 +109,63 @@ class UmkmProfileController extends Controller
 
         $profiles = UmkmProfile::where('status', 'pending')
             ->latest()
-            ->paginate(15);
+            ->paginate(15, ['*'], 'pending_page');
 
-        return view('admin.umkm-profiles.pending', ['profiles' => $profiles]);
+        // Histori keputusan admin (hanya profil yang pernah ditinjau lewat halaman ini)
+        $historyQuery = UmkmProfile::with('reviewer')->whereNotNull('reviewed_at');
+
+        if (in_array($request->query('history_status'), ['approved', 'rejected'], true)) {
+            $historyQuery->where('status', $request->query('history_status'));
+        }
+
+        $history = $historyQuery->latest('reviewed_at')
+            ->paginate(10, ['*'], 'history_page')
+            ->withQueryString();
+
+        return view('admin.umkm-profiles.pending', [
+            'profiles' => $profiles,
+            'history'  => $history,
+        ]);
     }
 
     /**
      * Admin: approve a pending profile.
      */
-    public function approve(UmkmProfile $umkmProfile): RedirectResponse
+    public function approve(Request $request, UmkmProfile $umkmProfile): RedirectResponse
     {
         $this->authorize('moderate', UmkmProfile::class);
 
-        $umkmProfile->update(['status' => 'approved']);
+        $umkmProfile->update([
+            'status'           => 'approved',
+            'rejection_reason' => null,
+            'reviewed_at'      => now(),
+            'reviewed_by'      => $request->user()->id,
+        ]);
 
         return redirect()->back()->with('success', "Profil {$umkmProfile->business_name} disetujui.");
     }
 
     /**
-     * Admin: reject a pending profile.
+     * Admin: reject a pending profile — alasan penolakan wajib diisi.
      */
-    public function reject(UmkmProfile $umkmProfile): RedirectResponse
+    public function reject(Request $request, UmkmProfile $umkmProfile): RedirectResponse
     {
         $this->authorize('moderate', UmkmProfile::class);
 
-        $umkmProfile->update(['status' => 'rejected']);
+        $validated = $request->validate([
+            'rejection_reason' => ['required', 'string', 'min:10', 'max:1000'],
+        ], [
+            'rejection_reason.required' => 'Alasan penolakan wajib diisi.',
+            'rejection_reason.min'      => 'Alasan penolakan minimal 10 karakter.',
+            'rejection_reason.max'      => 'Alasan penolakan maksimal 1000 karakter.',
+        ]);
+
+        $umkmProfile->update([
+            'status'           => 'rejected',
+            'rejection_reason' => $validated['rejection_reason'],
+            'reviewed_at'      => now(),
+            'reviewed_by'      => $request->user()->id,
+        ]);
 
         return redirect()->back()->with('success', "Profil {$umkmProfile->business_name} ditolak.");
     }

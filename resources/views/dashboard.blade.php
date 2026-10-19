@@ -275,6 +275,13 @@
 
                         <x-status-badge :status="$profile->status" :label="$statusLabel" class="mb-4" />
 
+                        @if($profile->status === 'rejected' && $profile->rejection_reason)
+                            <div class="mb-4 p-3 text-sm text-red-700 bg-red-50 border border-red-200 rounded">
+                                <p class="font-semibold">Alasan penolakan dari admin:</p>
+                                <p class="whitespace-pre-line">{{ $profile->rejection_reason }}</p>
+                            </div>
+                        @endif
+
                         <p class="text-sm text-gray-600 mb-1"><span class="font-semibold">{{ $profile->business_name }}</span></p>
                         <p class="text-sm text-gray-600 mb-4">{{ $profile->whatsapp }}</p>
 

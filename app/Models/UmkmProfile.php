@@ -33,9 +33,13 @@ class UmkmProfile extends Model
         'subsector_id',
         'category_id',
         'status',
+        'rejection_reason',
+        'reviewed_at',
+        'reviewed_by',
     ];
 
     protected $casts = [
+        'reviewed_at'            => 'datetime',
         'established_year'       => 'integer',
         'employee_count'         => 'integer',
         'monthly_revenue'        => 'integer',
@@ -46,6 +50,11 @@ class UmkmProfile extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function reviewer(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'reviewed_by');
     }
 
     public function subsector(): BelongsTo
